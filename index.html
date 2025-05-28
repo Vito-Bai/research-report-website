@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户研究报告库</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36BFFA',
+                        neutral: {
+                            100: '#F5F7FA',
+                            200: '#E5E6EB',
+                            300: '#C9CDD4',
+                            400: '#86909C',
+                            500: '#4E5969',
+                            600: '#272E3B',
+                            700: '#1D2129',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 20px rgba(0, 0, 0, 0.08)',
+                        'card-hover': '0 8px 30px rgba(0, 0, 0, 0.12)',
+                    }
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-balance {
+                text-wrap: balance;
+            }
+            .card-transition {
+                transition: all 0.3s ease;
+            }
+            .skeleton {
+                background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                background-size: 200% 100%;
+                animation: skeleton-loading 1.5s infinite;
+            }
+            @keyframes skeleton-loading {
+                0% { background-position: 200% 0; }
+                100% { background-position: -200% 0; }
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-neutral-100 text-neutral-700 min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-book text-primary text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-neutral-700">用户研究<span class="text-primary">报告库</span></h1>
+            </div>
+            
+            <!-- 桌面端搜索框 -->
+            <div class="hidden md:flex items-center bg-neutral-100 rounded-full px-4 py-2 w-1/3">
+                <i class="fa fa-search text-neutral-400 mr-2"></i>
+                <input type="text" id="desktop-search" placeholder="搜索报告标题、作者或关键词..." 
+                    class="bg-transparent w-full focus:outline-none text-neutral-700">
+            </div>
+            
+            <!-- 移动端菜单按钮 -->
+            <button class="md:hidden text-neutral-700" id="menu-toggle">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+            
+            <!-- 桌面端导航 -->
+            <nav class="hidden md:flex items-center space-x-6">
+                <a href="#" class="text-neutral-700 hover:text-primary transition-colors font-medium">首页</a>
+                <a href="#" class="text-neutral-500 hover:text-primary transition-colors">浏览报告</a>
+                <a href="#" class="text-neutral-500 hover:text-primary transition-colors">关于我们</a>
+                <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-full transition-colors flex items-center">
+                    <i class="fa fa-upload mr-2"></i>
+                    <span>上传报告</span>
+                </button>
+            </nav>
+        </div>
+        
+        <!-- 移动端搜索框 -->
+        <div class="md:hidden px-4 pb-3">
+            <div class="flex items-center bg-neutral-100 rounded-full px-4 py-2">
+                <i class="fa fa-search text-neutral-400 mr-2"></i>
+                <input type="text" id="mobile-search" placeholder="搜索报告..." 
+                    class="bg-transparent w-full focus:outline-none text-neutral-700">
+            </div>
+        </div>
+        
+        <!-- 移动端导航菜单 -->
+        <div class="md:hidden hidden bg-white border-t border-neutral-200 px-4 py-2" id="mobile-menu">
+            <a href="#" class="block py-2 text-neutral-700 font-medium">首页</a>
+            <a href="#" class="block py-2 text-neutral-500">浏览报告</a>
+            <a href="#" class="block py-2 text-neutral-500">关于我们</a>
+            <button class="mt-2 w-full bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-full transition-colors flex items-center justify-center">
+                <i class="fa fa-upload mr-2"></i>
+                <span>上传报告</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <!-- 筛选区 -->
+        <section class="bg-white rounded-xl shadow-card p-4 mb-6">
+            <h2 class="text-lg font-semibold mb-4">筛选条件</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-neutral-500 mb-1">研究类型</label>
+                    <select class="w-full p-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                        <option value="">全部类型</option>
+                        <option value="user-interview">用户访谈</option>
+                        <option value="survey">问卷调查</option>
+                        <option value="usability-test">可用性测试</option>
+                        <option value="market-research">市场研究</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-neutral-500 mb-1">发布时间</label>
+                    <select class="w-full p-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                        <option value="">全部时间</option>
+                        <option value="recent-month">最近一个月</option>
+                        <option value="recent-three-months">最近三个月</option>
+                        <option value="recent-year">最近一年</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-neutral-500 mb-1">行业</label>
+                    <select class="w-full p-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                        <option value="">全部行业</option>
+                        <option value="tech">科技</option>
+                        <option value="finance">金融</option>
+                        <option value="education">教育</option>
+                        <option value="healthcare">医疗健康</option>
+                        <option value="retail">零售</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-between items-center mt-4">
+                <div class="flex items-center space-x-2">
+                    <button class="text-sm text-primary hover:text-primary/80 transition-colors flex items-center">
+                        <i class="fa fa-sliders mr-1"></i>
+                        <span>更多筛选</span>
+                    </button>
+                    <span class="text-neutral-300">|</span>
+                    <button class="text-sm text-neutral-500 hover:text-neutral-700 transition-colors">
+                        重置筛选
+                    </button>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-neutral-500">排序方式:</span>
+                    <select class="text-sm p-1 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                        <option value="newest">最新发布</option>
+                        <option value="popular">最受欢迎</option>
+                        <option value="relevance">相关度</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- 报告列表区 -->
+        <section>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-neutral-700">研究报告列表</h2>
+                <div class="text-sm text-neutral-500">找到 <span class="font-medium text-primary">24</span> 份报告</div>
+            </div>
+            
+            <!-- 报告卡片网格 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="report-grid">
+                <!-- 报告卡片1 -->
+                <div class="bg-white rounded-xl shadow-card overflow-hidden card-transition hover:shadow-card-hover transform hover:-translate-y-1">
+                    <div class="relative h-48">
+                        <img src="https://picsum.photos/seed/research1/600/400" alt="用户体验研究报告封面" 
+                            class="w-full h-full object-cover">
+                        <div class="absolute top-3 left-3 bg-primary/90 text-white text-xs font-medium px-2 py-1 rounded">
+                            用户访谈
+                        </div>
+                        <div class="absolute top-3 right-3 bg-white/90 text-neutral-700 text-xs font-medium px-2 py-1 rounded flex items-center">
+                            <i class="fa fa-download mr-1"></i> 128
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-semibold text-lg mb-2 line-clamp-2 text-balance">2025年移动应用用户体验研究报告：用户需求与行为分析</h3>
+                        <div class="flex items-center text-sm text-neutral-500 mb-3">
+                            <img src="https://picsum.photos/seed/author1/30/30" alt="作者头像" class="w-6 h-6 rounded-full mr-2">
+                            <span>张晓明, 李思思</span>
+                            <span class="mx-2">•</span>
+                            <span>2025-04-15</span>
+                        </div>
+                        <p class="text-neutral-600 text-sm mb-4 line-clamp-3">本报告基于对1000名移动应用用户的深度访谈和行为数据分析，揭示了当前用户对移动应用的核心需求、痛点以及未来期望，为产品设计提供重要参考。</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">移动应用</span>
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">用户体验</span>
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">用户需求</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-primary font-medium">查看详情</div>
+                            <button class="bg-primary/10 hover:bg-primary/20 text-primary rounded-full p-2 transition-colors">
+                                <i class="fa fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 报告卡片2 -->
+                <div class="bg-white rounded-xl shadow-card overflow-hidden card-transition hover:shadow-card-hover transform hover:-translate-y-1">
+                    <div class="relative h-48">
+                        <img src="https://picsum.photos/seed/research2/600/400" alt="市场调研报告封面" 
+                            class="w-full h-full object-cover">
+                        <div class="absolute top-3 left-3 bg-secondary/90 text-white text-xs font-medium px-2 py-1 rounded">
+                            市场研究
+                        </div>
+                        <div class="absolute top-3 right-3 bg-white/90 text-neutral-700 text-xs font-medium px-2 py-1 rounded flex items-center">
+                            <i class="fa fa-download mr-1"></i> 96
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-semibold text-lg mb-2 line-clamp-2 text-balance">2025年智能家居用户市场调研报告：消费趋势与购买行为</h3>
+                        <div class="flex items-center text-sm text-neutral-500 mb-3">
+                            <img src="https://picsum.photos/seed/author2/30/30" alt="作者头像" class="w-6 h-6 rounded-full mr-2">
+                            <span>王建国, 陈静</span>
+                            <span class="mx-2">•</span>
+                            <span>2025-03-22</span>
+                        </div>
+                        <p class="text-neutral-600 text-sm mb-4 line-clamp-3">本报告通过对2000名智能家居用户的问卷调查，分析了当前智能家居市场的消费趋势、用户偏好和购买决策因素，为企业制定市场策略提供依据。</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">智能家居</span>
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">消费趋势</span>
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">市场调研</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-primary font-medium">查看详情</div>
+                            <button class="bg-primary/10 hover:bg-primary/20 text-primary rounded-full p-2 transition-colors">
+                                <i class="fa fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 报告卡片3 -->
+                <div class="bg-white rounded-xl shadow-card overflow-hidden card-transition hover:shadow-card-hover transform hover:-translate-y-1">
+                    <div class="relative h-48">
+                        <img src="https://picsum.photos/seed/research3/600/400" alt="可用性测试报告封面" 
+                            class="w-full h-full object-cover">
+                        <div class="absolute top-3 left-3 bg-green-500/90 text-white text-xs font-medium px-2 py-1 rounded">
+                            可用性测试
+                        </div>
+                        <div class="absolute top-3 right-3 bg-white/90 text-neutral-700 text-xs font-medium px-2 py-1 rounded flex items-center">
+                            <i class="fa fa-download mr-1"></i> 75
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-semibold text-lg mb-2 line-clamp-2 text-balance">在线教育平台可用性测试报告：用户体验痛点与改进建议</h3>
+                        <div class="flex items-center text-sm text-neutral-500 mb-3">
+                            <img src="https://picsum.photos/seed/author3/30/30" alt="作者头像" class="w-6 h-6 rounded-full mr-2">
+                            <span>林小雨, 赵天明</span>
+                            <span class="mx-2">•</span>
+                            <span>2025-05-08</span>
+                        </div>
+                        <p class="text-neutral-600 text-sm mb-4 line-clamp-3">本报告通过对15名用户的可用性测试，发现了在线教育平台存在的主要体验问题，并提出了针对性的改进建议，帮助提升平台的用户体验和转化率。</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">在线教育</span>
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">可用性测试</span>
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">用户体验</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-primary font-medium">查看详情</div>
+                            <button class="bg-primary/10 hover:bg-primary/20 text-primary rounded-full p-2 transition-colors">
+                                <i class="fa fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 报告卡片4 -->
+                <div class="bg-white rounded-xl shadow-card overflow-hidden card-transition hover:shadow-card-hover transform hover:-translate-y-1">
+                    <div class="relative h-48">
+                        <img src="https://picsum.photos/seed/research4/600/400" alt="用户调研分析报告封面" 
+                            class="w-full h-full object-cover">
+                        <div class="absolute top-3 left-3 bg-purple-500/90 text-white text-xs font-medium px-2 py-1 rounded">
+                            问卷调查
+                        </div>
+                        <div class="absolute top-3 right-3 bg-white/90 text-neutral-700 text-xs font-medium px-2 py-1 rounded flex items-center">
+                            <i class="fa fa-download mr-1"></i> 112
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-semibold text-lg mb-2 line-clamp-2 text-balance">金融科技用户满意度调研报告：产品体验与需求分析</h3>
+                        <div class="flex items-center text-sm text-neutral-500 mb-3">
+                            <img src="https://picsum.photos/seed/author4/30/30" alt="作者头像" class="w-6 h-6 rounded-full mr-2">
+                            <span>刘芳, 陈天明</span>
+                            <span class="mx-2">•</span>
+                            <span>2025-02-18</span>
+                        </div>
+                        <p class="text-neutral-600 text-sm mb-4 line-clamp-3">本报告基于对3000名金融科技用户的问卷调查，深入分析了用户对各类金融科技产品的使用体验、满意度和未被满足的需求，为产品优化提供方向。</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">金融科技</span>
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">用户满意度</span>
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">需求分析</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-primary font-medium">查看详情</div>
+                            <button class="bg-primary/10 hover:bg-primary/20 text-primary rounded-full p-2 transition-colors">
+                                <i class="fa fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 报告卡片5 -->
+                <div class="bg-white rounded-xl shadow-card overflow-hidden card-transition hover:shadow-card-hover transform hover:-translate-y-1">
+                    <div class="relative h-48">
+                        <img src="https://picsum.photos/seed/research5/600/400" alt="用户行为分析报告封面" 
+                            class="w-full h-full object-cover">
+                        <div class="absolute top-3 left-3 bg-primary/90 text-white text-xs font-medium px-2 py-1 rounded">
+                            用户访谈
+                        </div>
+                        <div class="absolute top-3 right-3 bg-white/90 text-neutral-700 text-xs font-medium px-2 py-1 rounded flex items-center">
+                            <i class="fa fa-download mr-1"></i> 87
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-semibold text-lg mb-2 line-clamp-2 text-balance">电商平台用户购买决策影响因素研究报告</h3>
+                        <div class="flex items-center text-sm text-neutral-500 mb-3">
+                            <img src="https://picsum.photos/seed/author5/30/30" alt="作者头像" class="w-6 h-6 rounded-full mr-2">
+                            <span>黄丽, 张伟</span>
+                            <span class="mx-2">•</span>
+                            <span>2025-01-25</span>
+                        </div>
+                        <p class="text-neutral-600 text-sm mb-4 line-clamp-3">本研究通过深度访谈和数据分析，探讨了电商平台用户购买决策的关键影响因素，包括产品展示、价格策略、用户评价等，为电商运营提供参考。</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">电子商务</span>
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">购买决策</span>
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">用户行为</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-primary font-medium">查看详情</div>
+                            <button class="bg-primary/10 hover:bg-primary/20 text-primary rounded-full p-2 transition-colors">
+                                <i class="fa fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 报告卡片6 -->
+                <div class="bg-white rounded-xl shadow-card overflow-hidden card-transition hover:shadow-card-hover transform hover:-translate-y-1">
+                    <div class="relative h-48">
+                        <img src="https://picsum.photos/seed/research6/600/400" alt="用户体验设计指南封面" 
+                            class="w-full h-full object-cover">
+                        <div class="absolute top-3 left-3 bg-secondary/90 text-white text-xs font-medium px-2 py-1 rounded">
+                            综合研究
+                        </div>
+                        <div class="absolute top-3 right-3 bg-white/90 text-neutral-700 text-xs font-medium px-2 py-1 rounded flex items-center">
+                            <i class="fa fa-download mr-1"></i> 143
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-semibold text-lg mb-2 line-clamp-2 text-balance">2025年用户体验设计趋势与最佳实践指南</h3>
+                        <div class="flex items-center text-sm text-neutral-500 mb-3">
+                            <img src="https://picsum.photos/seed/author6/30/30" alt="作者头像" class="w-6 h-6 rounded-full mr-2">
+                            <span>设计研究团队</span>
+                            <span class="mx-2">•</span>
+                            <span>2025-05-12</span>
+                        </div>
+                        <p class="text-neutral-600 text-sm mb-4 line-clamp-3">本指南汇总了2025年用户体验设计的最新趋势、研究成果和最佳实践案例，涵盖了界面设计、交互模式、情感化设计等多个方面，为设计师提供参考。</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">用户体验</span>
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">设计趋势</span>
+                            <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">设计指南</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-primary font-medium">查看详情</div>
+                            <button class="bg-primary/10 hover:bg-primary/20 text-primary rounded-full p-2 transition-colors">
+                                <i class="fa fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 加载更多按钮 -->
+            <div class="flex justify-center mt-8">
+                <button id="load-more" class="bg-white border border-neutral-200 hover:border-primary text-neutral-700 hover:text-primary px-6 py-3 rounded-full flex items-center transition-colors">
+                    <span>加载更多</span>
+                    <i class="fa fa-chevron-down ml-2"></i>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-neutral-700 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fa fa-book text-primary text-2xl"></i>
+                        <h2 class="text-xl font-bold">用户研究<span class="text-primary">报告库</span></h2>
+                    </div>
+                    <p class="text-neutral-300 text-sm">提供高质量的用户研究报告，助力产品创新与用户体验提升。</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-neutral-300 hover:text-white transition-colors">
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                        <a href="#" class="text-neutral-300 hover:text-white transition-colors">
+                            <i class="fa fa-wechat"></i>
+                        </a>
+                        <a href="#" class="text-neutral-300 hover:text-white transition-colors">
+                            <i class="fa fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">快速链接</h3>
+                    <ul class="space-y-2 text-neutral-300">
+                        <li><a href="#" class="hover:text-white transition-colors">首页</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">浏览报告</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">最新上传</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">热门下载</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">关于我们</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">研究类型</h3>
+                    <ul class="space-y-2 text-neutral-300">
+                        <li><a href="#" class="hover:text-white transition-colors">用户访谈</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">问卷调查</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">可用性测试</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">市场研究</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">竞品分析</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+                    <ul class="space-y-2 text-neutral-300">
+                        <li class="flex items-start">
+                            <i class="fa fa-envelope-o mt-1 mr-2"></i>
+                            <span>contact@researchlib.com</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-phone mt-1 mr-2"></i>
+                            <span>+86 10 8888 7777</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-map-marker mt-1 mr-2"></i>
+                            <span>北京市海淀区中关村大街1号</span>
+                        </li>
+                    </ul>
+                    <div class="mt-4">
+                        <h4 class="text-sm font-medium mb-2">订阅最新报告</h4>
+                        <div class="flex">
+                            <input type="email" placeholder="输入您的邮箱" class="bg-neutral-600 text-white px-3 py-2 rounded-l-md focus:outline-none focus:ring-1 focus:ring-primary w-full">
+                            <button class="bg-primary hover:bg-primary/90 text-white px-3 py-2 rounded-r-md transition-colors">
+                                <i class="fa fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-neutral-600 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <div class="text-neutral-400 text-sm">© 2025 用户研究报告库. 保留所有权利.</div>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="text-neutral-400 hover:text-white text-sm transition-colors">隐私政策</a>
+                    <a href="#" class="text-neutral-400 hover:text-white text-sm transition-colors">使用条款</a>
+                    <a href="#" class="text-neutral-400 hover:text-white text-sm transition-colors">帮助中心</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 模态框 - 报告详情 -->
+    <div id="report-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="relative">
+                <img src="https://picsum.photos/seed/research1/1200/400" alt="报告封面大图" class="w-full h-64 object-cover">
+                <button id="close-modal" class="absolute top-4 right-4 bg-white/80 hover:bg-white text-neutral-700 rounded-full p-2 transition-colors">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="flex flex-wrap items-start justify-between mb-4">
+                    <div>
+                        <span class="inline-block bg-primary/90 text-white text-xs font-medium px-2 py-1 rounded mb-3">用户访谈</span>
+                        <h2 class="text-2xl font-bold mb-2">2025年移动应用用户体验研究报告：用户需求与行为分析</h2>
+                        <div class="flex items-center text-sm text-neutral-500 mb-4">
+                            <img src="https://picsum.photos/seed/author1/30/30" alt="作者头像" class="w-8 h-8 rounded-full mr-2">
+                            <span>张晓明, 李思思</span>
+                            <span class="mx-3">•</span>
+                            <span>发布于 2025-04-15</span>
+                            <span class="mx-3">•</span>
+                            <span>阅读 1,248</span>
+                            <span class="mx-3">•</span>
+                            <span>下载 128</span>
+                        </div>
+                    </div>
+                    <div class="ml-4 mt-2">
+                        <button class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-full transition-colors flex items-center">
+                            <i class="fa fa-download mr-2"></i>
+                            <span>下载报告</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-neutral-100 rounded-lg p-4">
+                        <h3 class="text-sm font-medium text-neutral-500 mb-2">研究方法</h3>
+                        <p class="text-neutral-700">用户访谈、行为数据分析</p>
+                    </div>
+                    <div class="bg-neutral-100 rounded-lg p-4">
+                        <h3 class="text-sm font-medium text-neutral-500 mb-2">样本量</h3>
+                        <p class="text-neutral-700">1,000名移动应用用户</p>
+                    </div>
+                    <div class="bg-neutral-100 rounded-lg p-4">
+                        <h3 class="text-sm font-medium text-neutral-500 mb-2">发布机构</h3>
+                        <p class="text-neutral-700">用户体验研究中心</p>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">报告简介</h3>
+                    <p class="text-neutral-700 mb-4">
+                        本报告基于对1000名移动应用用户的深度访谈和行为数据分析，揭示了当前用户对移动应用的核心需求、痛点以及未来期望，为产品设计提供重要参考。报告内容涵盖用户使用习惯、功能偏好、界面设计期望、付费意愿等多个方面。
+                    </p>
+                    <p class="text-neutral-700">
+                        通过本报告，您将了解到：
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li>移动应用用户的核心需求和未被满足的期望</li>
+                            <li>影响用户选择和使用移动应用的关键因素</li>
+                            <li>不同年龄段、性别和行业用户的行为差异</li>
+                            <li>用户对移动应用界面设计和交互体验的偏好</li>
+                            <li>提升用户满意度和忠诚度的有效策略</li>
+                            <li>2025年移动应用设计的趋势和方向</li>
+                        </ul>
+                    </p>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">报告目录</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center">
+                            <i class="fa fa-file-text-o text-primary mr-2"></i>
+                            <span>1. 研究背景与方法</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-file-text-o text-primary mr-2"></i>
+                            <span>2. 用户基本信息与使用行为</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-file-text-o text-primary mr-2"></i>
+                            <span>3. 用户需求与痛点分析</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-file-text-o text-primary mr-2"></i>
+                            <span>4. 界面设计与交互体验</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-file-text-o text-primary mr-2"></i>
+                            <span>5. 功能偏好与重要性排序</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-file-text-o text-primary mr-2"></i>
+                            <span>6. 用户满意度与忠诚度分析</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-file-text-o text-primary mr-2"></i>
+                            <span>7. 竞争产品分析</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-file-text-o text-primary mr-2"></i>
+                            <span>8. 设计建议与策略</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-file-text-o text-primary mr-2"></i>
+                            <span>9. 研究结论与展望</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-file-text-o text-primary mr-2"></i>
+                            <span>附录：研究方法详情与数据图表</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">相关报告</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="flex items-center p-3 bg-neutral-100 rounded-lg hover:bg-neutral-200 transition-colors">
+                            <img src="https://picsum.photos/seed/research2/100/100" alt="相关报告缩略图" class="w-16 h-16 object-cover rounded mr-3">
+                            <div>
+                                <h4 class="font-medium text-sm line-clamp-2">2025年智能家居用户市场调研报告：消费趋势与购买行为</h4>
+                                <div class="text-xs text-neutral-500 mt-1">市场研究 • 2025-03-22</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-3 bg-neutral-100 rounded-lg hover:bg-neutral-200 transition-colors">
+                            <img src="https://picsum.photos/seed/research4/100/100" alt="相关报告缩略图" class="w-16 h-16 object-cover rounded mr-3">
+                            <div>
+                                <h4 class="font-medium text-sm line-clamp-2">金融科技用户满意度调研报告：产品体验与需求分析</h4>
+                                <div class="text-xs text-neutral-500 mt-1">问卷调查 • 2025-02-18</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <button class="border border-neutral-200 hover:border-primary text-neutral-700 hover:text-primary px-4 py-2 rounded-lg transition-colors flex items-center">
+                        <i class="fa fa-share-alt mr-2"></i>
+                        <span>分享报告</span>
+                    </button>
+                    <button class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-full transition-colors flex items-center">
+                        <i class="fa fa-download mr-2"></i>
+                        <span>下载报告 (PDF, 5.2MB)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 导航栏滚动效果
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 10) {
+                navbar.classList.add('py-2', 'shadow');
+                navbar.classList.remove('py-3');
+            } else {
+                navbar.classList.add('py-3');
+                navbar.classList.remove('py-2', 'shadow');
+            }
+        });
+        
+        // 移动端菜单切换
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // 打开报告详情模态框
+        const reportCards = document.querySelectorAll('.grid > div');
+        const reportModal = document.getElementById('report-modal');
+        const closeModal = document.getElementById('close-modal');
+        
+        reportCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('button')) {
+                    reportModal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+        });
+        
+        closeModal.addEventListener('click', () => {
+            reportModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        });
+        
+        // 点击模态框外部关闭
+        reportModal.addEventListener('click', (e) => {
+            if (e.target === reportModal) {
+                reportModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+        
+        // 加载更多功能
+        const loadMoreBtn = document.getElementById('load-more');
+        loadMoreBtn.addEventListener('click', () => {
+            loadMoreBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 加载中...';
+            
+            // 模拟加载延迟
+            setTimeout(() => {
+                loadMoreBtn.innerHTML = '<span>加载更多</span><i class="fa fa-chevron-down ml-2"></i>';
+                
+                // 这里可以添加实际的加载更多逻辑
+                alert('已加载全部报告');
+            }, 1500);
+        });
+        
+        // 搜索功能
+        const searchInputs = document.querySelectorAll('input[id$="-search"]');
+        searchInputs.forEach(input => {
+            input.addEventListener('input', (e) => {
+                // 这里可以添加实际的搜索逻辑
+                console.log('搜索:', e.target.value);
+            });
+        });
+    </script>
+</body>
+</html>    
